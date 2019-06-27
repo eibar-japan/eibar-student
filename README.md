@@ -31,7 +31,7 @@ No specific directions for right now. Please post to the Issues page to get in t
 
 ## Authors
 
-* **Ian Cameron** - *Initial work* - [Ian](https://github.com/iankameron)
+[Ian Cameron](https://github.com/iankameron) initiated this project as a part of the Code Chrysalis coding bootcamp curriculum, specifically the "Polyglottal week", where students are given 5 days to create a full-stack app with a technology they've **never used before**.
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
