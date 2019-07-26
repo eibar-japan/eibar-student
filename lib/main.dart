@@ -26,13 +26,81 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Find YOUR teacher!'),
+      home: LoginScreen(),
+      // home: TeacherSearchScreen(title: 'Find YOUR teacher!'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<TeacherSearchScreen> {
+  // State variables
+  final _loginFormKey = GlobalKey<FormState>();
+
+  // Other methods/functions
+
+  // build
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Column(
+      children: <Widget>[
+        Image.asset('/assets/img/eibar_icon.png'),
+        Text("Please log in"),
+        Form(
+          key: _loginFormKey,
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.email),
+                  hintText: 'e-mail address',
+                  labelText: 'e-mail',
+                ),
+                autofocus: true,
+                // initialValue: 'Username',
+                style: TextStyle(fontSize: 20.0),
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                initialValue: 'Password',
+                obscureText: true,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter some text';
+                  }
+                  return null;
+                },
+              ),
+              RaisedButton(
+                onPressed: () {
+                  // Validate will return true if the form is valid, or false if
+                  // the form is invalid.
+                  if (_loginFormKey.currentState.validate()) {
+                    // Process data.
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        )
+      ],
+    ));
+  }
+}
+
+class TeacherSearchScreen extends StatefulWidget {
+  TeacherSearchScreen({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -46,17 +114,17 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _TeacherSearchScreenState createState() => _TeacherSearchScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _TeacherSearchScreenState extends State<TeacherSearchScreen> {
   List _availability = [];
   Set<Marker> _locations = Set();
 
   GoogleMapController mapController;
   final LatLng _center = const LatLng(35.657994, 139.727557);
 
-  void _onMapCreated  (GoogleMapController controller) async {
+  void _onMapCreated(GoogleMapController controller) async {
     // PermissionStatus permission = await PermissionHandler().checkPermissionStatus(PermissionGroup.location);
     // if (permission != PermissionStatus.granted) {
     //   Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse]);
@@ -66,19 +134,19 @@ class _MyHomePageState extends State<MyHomePage> {
     // Set<Marker> = {New Marker(LatLng())}
     // Set.of(New Marker(LatLng:))
     // debugPrint(jsonEncode(_availability));
-
-
   }
 
   Future<http.Response> fetchAvailability() async {
     return await http.get('https://eibar-stage.herokuapp.com/api/availability');
   }
 
-  void _tapMarker (teacherId, teacherName) async {
+  void _tapMarker(teacherId, teacherName) async {
     // var response = await http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}');
     // var data = jsonEncode(response.body);
     // debugPrint(data);
-    Route route = MaterialPageRoute(builder: (context) => TeacherLessonPage(teacherId: teacherId, teacherName: teacherName));
+    Route route = MaterialPageRoute(
+        builder: (context) =>
+            TeacherLessonPage(teacherId: teacherId, teacherName: teacherName));
     Navigator.push(context, route);
   }
 
@@ -91,13 +159,13 @@ class _MyHomePageState extends State<MyHomePage> {
     _availability.forEach((teacher) {
       // LatLng newLL = LatLng(teacher.lat, teacher.long);
       _locations.add(Marker(
-        markerId: MarkerId(teacher['teacher_id']), 
+        markerId: MarkerId(teacher['teacher_id']),
         position: LatLng(teacher['lat'], teacher['long']),
         consumeTapEvents: false,
         infoWindow: InfoWindow(
-          title: teacher['name'], 
+          title: teacher['name'],
           snippet: 'ID: ${teacher['teacher_id']}  Rating: ${teacher['rating']}',
-          onTap: (){
+          onTap: () {
             _tapMarker(teacher['teacher_id'], teacher['name']);
           },
         ),
@@ -111,7 +179,6 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-    
       body: GoogleMap(
         onMapCreated: _onMapCreated,
         // myLocationEnabled: true,
@@ -124,30 +191,35 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _updateAvailability,
         tooltip: 'Get Teachers',
-        child: Icon(Icons.search),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        child: Icon(Icons.refresh),
+      ),
     );
   }
 }
 
-
-
 class TeacherLessonPage extends StatefulWidget {
-  TeacherLessonPage({Key key, this.teacherId, this.teacherName}) : super(key: key);
+  TeacherLessonPage({Key key, this.teacherId, this.teacherName})
+      : super(key: key);
 
   final String teacherId;
   final String teacherName;
   @override
-  _TeacherLessonPageState createState() => _TeacherLessonPageState(teacherId: teacherId, teacherName:teacherName);
+  _TeacherLessonPageState createState() =>
+      _TeacherLessonPageState(teacherId: teacherId, teacherName: teacherName);
 }
-
 
 class _TeacherLessonPageState extends State<TeacherLessonPage> {
   String teacherId;
   String teacherName;
   Map _teacher = {"name": "-", "specialty": "-"};
-  List<Map<String, String>> _lessons = [{"startTime": "-", "cost":"-"}];
-  List<Widget> _stars = [Text('Rating: ', )];
+  List<Map<String, String>> _lessons = [
+    {"startTime": "-", "cost": "-"}
+  ];
+  List<Widget> _stars = [
+    Text(
+      'Rating: ',
+    )
+  ];
   Uint8List _teacherPhoto;
   _TeacherLessonPageState({this.teacherId, this.teacherName});
   // Teacher _teacher = Teacher(name: "-", specialty: "-", rating: 0);
@@ -158,7 +230,7 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
   //   },
   // ],
 
-  List<Widget> ratingStars (int rating) {
+  List<Widget> ratingStars(int rating) {
     List<Widget> widgetList = <Widget>[]; //List();
     // widgetList.add(Text('Rating: ', ));
     int limit = rating;
@@ -171,7 +243,8 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
   List<Map<String, String>> processLessons(lessons) {
     List<Map<String, String>> lessonList = List();
     lessons.forEach((lesson) {
-      lessonList.add({"startTime": lesson['startTime'], "cost": lesson['cost']});
+      lessonList
+          .add({"startTime": lesson['startTime'], "cost": lesson['cost']});
     });
     return lessonList;
   }
@@ -183,11 +256,12 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
     debugPrint("getting data from API");
     return Future.wait([
       http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}'),
-      http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/lessons')
+      http.get(
+          'https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/lessons')
       // ,
       // http.readBytes('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/photo')
     ]);
-  } 
+  }
 
   // Future<http.Response> fetchTeacherDetails(teacherId) {
   //   return http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}');
@@ -196,116 +270,104 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
   //   return http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/lessons');
   // }
 
-  List<Widget> listLessons (List<Map> lessons) {
+  List<Widget> listLessons(List<Map> lessons) {
     List<Widget> widgetList = <Widget>[];
-    lessons.forEach((lesson){
-      widgetList.add(
-        Card(
-          child: Padding (
-            padding: EdgeInsets.all(8.0),
-            child: Column (
+    lessons.forEach((lesson) {
+      widgetList.add(Card(
+        child: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text('Time: ${lesson["startTime"]}'),
                 Text('Cost: ${lesson["cost"]}')
-              ]
-            ),
-          ),
-        )
-      );
+              ]),
+        ),
+      ));
     });
     return widgetList;
-  } 
+  }
 
   // void getTeacherLessons () async {
   // }
 
   @override
-  initState () {
+  initState() {
     // getTeacherLessons();
     // var detailsFuture = fetchTeacherDetails(teacherId);
 
-    fetchData(teacherId)
-      .then((responses) {
-        debugPrint("got stuff from API");
-        setState(() {
-          _teacher = jsonDecode(responses[0].body);
-          _stars.addAll(ratingStars(jsonDecode(responses[0].body)["rating"]));
-          _lessons = processLessons(jsonDecode(responses[1].body));
-          // _teacherPhoto = responses[2].bodyBytes;
-          // _teacherPhoto = responses[0].bodyBytes;
-        });
+    fetchData(teacherId).then((responses) {
+      debugPrint("got stuff from API");
+      setState(() {
+        _teacher = jsonDecode(responses[0].body);
+        _stars.addAll(ratingStars(jsonDecode(responses[0].body)["rating"]));
+        _lessons = processLessons(jsonDecode(responses[1].body));
+        // _teacherPhoto = responses[2].bodyBytes;
+        // _teacherPhoto = responses[0].bodyBytes;
       });
-      // .catchError((e) {debugPrint(e.toString())});
-        //debugPrint(_teacherPhoto.toString());
-        // return fetchLessonDetails(teacherId);
-      // .then((response) {
-      //   setState(() {
-      //     _lessons = processLessons(jsonDecode(response.body));
-      //   });
-      //   debugPrint(_teacher.toString());
-      //   debugPrint(_lessons.toString());
-      // });
+    });
+    // .catchError((e) {debugPrint(e.toString())});
+    //debugPrint(_teacherPhoto.toString());
+    // return fetchLessonDetails(teacherId);
+    // .then((response) {
+    //   setState(() {
+    //     _lessons = processLessons(jsonDecode(response.body));
+    //   });
+    //   debugPrint(_teacher.toString());
+    //   debugPrint(_lessons.toString());
+    // });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(teacherName),
-      ),
-      body: Padding (
-        padding: EdgeInsets.all(8.0),
-        child: Column (
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Card(
-              color: Colors.grey[200],
-              child: Padding (
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      height: 70,
-                      width: 70,
-                      color: Colors.amber[600],
-                      child: Text('picture'),
-                      // child: Image.memory(
-                      //   bytes: _teacherPhoto
-                      // )
-                    ),
-                    Padding (
-                      padding: EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text (
-                            'Specialty: ${_teacher['specialty']}',
-                            textAlign: TextAlign.left,
-                          ),
-                          Row (
-                            children: _stars, //ratingStars(_teacher['rating']),
-                          ),
-                        ],
-                      )
-                    ),
-                  ]
-                )
-              )
-            ),
-            Expanded(
-              child: Container(
-                child: ListView (
-                  children: listLessons(_lessons)
-                )
-              )
-            )
-          ],
+        appBar: AppBar(
+          title: Text(teacherName),
         ),
-      )
-    );
+        body: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Card(
+                  color: Colors.grey[200],
+                  child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Container(
+                              height: 70,
+                              width: 70,
+                              color: Colors.amber[600],
+                              child: Text('picture'),
+                              // child: Image.memory(
+                              //   bytes: _teacherPhoto
+                              // )
+                            ),
+                            Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text(
+                                      'Specialty: ${_teacher['specialty']}',
+                                      textAlign: TextAlign.left,
+                                    ),
+                                    Row(
+                                      children:
+                                          _stars, //ratingStars(_teacher['rating']),
+                                    ),
+                                  ],
+                                )),
+                          ]))),
+              Expanded(
+                  child: Container(
+                      child: ListView(children: listLessons(_lessons))))
+            ],
+          ),
+        ));
   }
 }
 
@@ -325,7 +387,7 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
 //   children: <Widget>[
 //     Container(
 //       height: 400.0,
-//       child: 
+//       child:
 //     ListView (
 //       children: <Widget>[
 //         Container(
