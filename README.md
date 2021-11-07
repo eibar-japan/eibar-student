@@ -1,25 +1,15 @@
-# Eibar - Student App
+# Eibar - Mobile App
 
-Eibar is an application that allows students to find freelance English teachers on short notice, out in town. It does for teachers and students what Uber does for drivers and passengers!
+Eibar is an app that allows students and freelance language teachers to find each other for lessons, even on short notice, out in town. Eibar is the "Uber for freelance language teachers."
 
 ## Getting Started
 
-This project is a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+This project is a Flutter application. Reference Flutter online documentation [here](https://flutter.dev/)
 
 ## Deployment
 
 The app will connects to a backend server for data.
-A server holding test data is currently available at [https://eibar-stage.herokuapp.com](https://eibar-stage.herokuapp.com).
-The current version of the Eibar server can also be found in [this repository](https://)
+The current version of the Eibar server can also be found in [this repository](https://github.com/eibar-japan/eibar-backend)
 
 ## Built With
 
@@ -31,9 +21,7 @@ No specific directions for right now. Please post to the Issues page to get in t
 
 ## Authors
 
-[Ian Cameron](https://github.com/iankameron) initiated this project as a part of the Code Chrysalis coding bootcamp curriculum, specifically the "Polyglottal week", where students are given 5 days to create a full-stack app with a technology they've **never used before**.
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+[Ian Cameron](https://github.com/iankameron) initiated this project as a part of the Code Chrysalis coding bootcamp curriculum, specifically the "Polyglottal week", where students are given 5 days to create a full-stack app with a technology they've never used before.
 
 ## License
 
