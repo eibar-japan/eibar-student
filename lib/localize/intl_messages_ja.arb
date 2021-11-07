@@ -1,0 +1,14 @@
+{
+  "@@locale": "ja",
+  "@@last_modified": "2021-11-02T11:40:17.740124",
+  "promptLogin": "ログインしよう",
+  "@promptLogin": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "buttonLogin": "ログイン",
+  "@buttonLogin": {
+    "type": "text",
+    "placeholders": {}
+  }
+}

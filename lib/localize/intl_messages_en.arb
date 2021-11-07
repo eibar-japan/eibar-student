@@ -1,0 +1,14 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2021-11-02T11:40:17.740124",
+  "promptLogin": "Please log in",
+  "@promptLogin": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "buttonLogin": "Log in",
+  "@buttonLogin": {
+    "type": "text",
+    "placeholders": {}
+  }
+}

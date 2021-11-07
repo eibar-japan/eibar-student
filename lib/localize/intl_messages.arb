@@ -1,0 +1,18 @@
+{
+  "@@last_modified": "2021-11-02T12:37:05.291527",
+  "promptLogin": "Please log in",
+  "@promptLogin": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "buttonLogin": "Log in",
+  "@buttonLogin": {
+    "type": "text",
+    "placeholders": {}
+  },
+  "labelEmail": "e-mail",
+  "@labelEmail": {
+    "type": "text",
+    "placeholders": {}
+  }
+}

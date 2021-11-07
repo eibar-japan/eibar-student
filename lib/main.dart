@@ -1,127 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import './storage_preferences.dart';
+import './views/home_view.dart';
+import './views/auth/login_view.dart';
+import './views/auth/register_view.dart';
+import './localize/eibar_localizations_delegate.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(ChangeNotifierProvider(
+      create: (context) => AppGlobalStorage(),
+      child: const MyApp(),
+    ));
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Eibar',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: LoginScreen(),
-      // home: TeacherSearchScreen(title: 'Find YOUR teacher!'),
-    );
-  }
-}
+        title: 'Eibar',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.indigo,
+        ),
+        localizationsDelegates: [
+          const EibarLocalizationsDelegate(),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en', 'US'), // English
+          const Locale('ja', 'JP'), // Japanese
+        ],
+        initialRoute: "/loading",
+        routes: {
+          '/loading': (context) => LoadingScreen(),
+          '/login': (context) => LoginScreen(),
+          '/register': (context) => RegisterScreen(),
+          '/home': (context) => UserHomeScreen(),
+        }
 
-class LoginScreen extends StatefulWidget {
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<TeacherSearchScreen> {
-  // State variables
-  final _loginFormKey = GlobalKey<FormState>();
-
-  // Other methods/functions
-
-  // build
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(
-      children: <Widget>[
-        Image.asset('/assets/img/eibar_icon.png'),
-        Text("Please log in"),
-        Form(
-          key: _loginFormKey,
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.email),
-                  hintText: 'e-mail address',
-                  labelText: 'e-mail',
-                ),
-                autofocus: true,
-                // initialValue: 'Username',
-                style: TextStyle(fontSize: 20.0),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                initialValue: 'Password',
-                obscureText: true,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null;
-                },
-              ),
-              RaisedButton(
-                onPressed: () {
-                  // Validate will return true if the form is valid, or false if
-                  // the form is invalid.
-                  if (_loginFormKey.currentState.validate()) {
-                    // Process data.
-                  }
-                },
-                child: Text('Submit'),
-              ),
-            ],
-          ),
-        )
-      ],
-    ));
+        // home: LoginScreen()
+        // home: TeacherSearchScreen(title: 'Find YOUR teacher!'),
+        );
   }
 }
 
 class TeacherSearchScreen extends StatefulWidget {
-  TeacherSearchScreen({Key key, this.title}) : super(key: key);
+  TeacherSearchScreen({Key? key, this.title}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  final String? title;
 
   @override
   _TeacherSearchScreenState createState() => _TeacherSearchScreenState();
 }
 
 class _TeacherSearchScreenState extends State<TeacherSearchScreen> {
-  List _availability = [];
+  List? _availability = [];
   Set<Marker> _locations = Set();
 
-  GoogleMapController mapController;
+  GoogleMapController? mapController;
   final LatLng _center = const LatLng(35.657994, 139.727557);
 
   void _onMapCreated(GoogleMapController controller) async {
@@ -130,14 +72,17 @@ class _TeacherSearchScreenState extends State<TeacherSearchScreen> {
     //   Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.locationWhenInUse]);
     // }
     mapController = controller;
-    await _updateAvailability();
+    // COMMENTED OUT TO ALLOW APP TO BUILD (expression has type 'void' and can't be used)
+    // await _updateAvailability();
+
     // Set<Marker> = {New Marker(LatLng())}
     // Set.of(New Marker(LatLng:))
-    // debugPrint(jsonEncode(_availability));
   }
 
   Future<http.Response> fetchAvailability() async {
-    return await http.get('https://eibar-stage.herokuapp.com/api/availability');
+    // return await http.get('https://eibar-stage.herokuapp.com/api/availability');
+    return await http
+        .get(Uri.parse("https://eibar-stage.herokuapp.com/api/availability"));
   }
 
   void _tapMarker(teacherId, teacherName) async {
@@ -152,11 +97,12 @@ class _TeacherSearchScreenState extends State<TeacherSearchScreen> {
 
   void _updateAvailability() async {
     var teacherResponse = await fetchAvailability();
-    await setState(() {
+    debugPrint("xxx" + teacherResponse.body + "xxx");
+    setState(() {
       _availability = jsonDecode(teacherResponse.body);
     });
     _locations = Set();
-    _availability.forEach((teacher) {
+    _availability!.forEach((teacher) {
       // LatLng newLL = LatLng(teacher.lat, teacher.long);
       _locations.add(Marker(
         markerId: MarkerId(teacher['teacher_id']),
@@ -177,7 +123,7 @@ class _TeacherSearchScreenState extends State<TeacherSearchScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.title!),
       ),
       body: GoogleMap(
         onMapCreated: _onMapCreated,
@@ -198,21 +144,21 @@ class _TeacherSearchScreenState extends State<TeacherSearchScreen> {
 }
 
 class TeacherLessonPage extends StatefulWidget {
-  TeacherLessonPage({Key key, this.teacherId, this.teacherName})
+  TeacherLessonPage({Key? key, this.teacherId, this.teacherName})
       : super(key: key);
 
-  final String teacherId;
-  final String teacherName;
+  final String? teacherId;
+  final String? teacherName;
   @override
   _TeacherLessonPageState createState() =>
       _TeacherLessonPageState(teacherId: teacherId, teacherName: teacherName);
 }
 
 class _TeacherLessonPageState extends State<TeacherLessonPage> {
-  String teacherId;
-  String teacherName;
-  Map _teacher = {"name": "-", "specialty": "-"};
-  List<Map<String, String>> _lessons = [
+  String? teacherId;
+  String? teacherName;
+  Map? _teacher = {"name": "-", "specialty": "-"};
+  List<Map<String, String?>> _lessons = [
     {"startTime": "-", "cost": "-"}
   ];
   List<Widget> _stars = [
@@ -220,7 +166,7 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
       'Rating: ',
     )
   ];
-  Uint8List _teacherPhoto;
+  Uint8List? _teacherPhoto;
   _TeacherLessonPageState({this.teacherId, this.teacherName});
   // Teacher _teacher = Teacher(name: "-", specialty: "-", rating: 0);
   // "0006": [
@@ -240,8 +186,8 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
     return widgetList;
   }
 
-  List<Map<String, String>> processLessons(lessons) {
-    List<Map<String, String>> lessonList = List();
+  List<Map<String, String?>> processLessons(lessons) {
+    List<Map<String, String?>> lessonList = List.empty();
     lessons.forEach((lesson) {
       lessonList
           .add({"startTime": lesson['startTime'], "cost": lesson['cost']});
@@ -255,9 +201,10 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
     // futureList.add(http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/lessons'));
     debugPrint("getting data from API");
     return Future.wait([
-      http.get('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}'),
-      http.get(
-          'https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/lessons')
+      http.get(Uri.parse(
+          'https://eibar-stage.herokuapp.com/api/teachers/${teacherId}')),
+      http.get(Uri.parse(
+          'https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/lessons'))
       // ,
       // http.readBytes('https://eibar-stage.herokuapp.com/api/teachers/${teacherId}/photo')
     ]);
@@ -322,7 +269,7 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(teacherName),
+          title: Text(teacherName!),
         ),
         body: Padding(
           padding: EdgeInsets.all(8.0),
@@ -352,7 +299,7 @@ class _TeacherLessonPageState extends State<TeacherLessonPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text(
-                                      'Specialty: ${_teacher['specialty']}',
+                                      'Specialty: ${_teacher!['specialty']}',
                                       textAlign: TextAlign.left,
                                     ),
                                     Row(

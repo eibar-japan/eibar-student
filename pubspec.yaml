@@ -1,5 +1,5 @@
 name: eibar_student
-description: A new Flutter project.
+description: Flutter app for Eibar services.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -14,22 +14,31 @@ description: A new Flutter project.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ">0.12.0"
-  google_maps_flutter: "^0.5.11"
-  cloud_firestore: 
+  flutter_localizations:
+    sdk: flutter
+  http: "^0.13.4"
+  google_maps_flutter: "^2.0.11"
+  shared_preferences: "^2.0.8"
+  flutter_secure_storage: "^4.2.1"
+  provider: "^6.0.1"
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
+  cupertino_icons: ^1.0.3
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  intl_translation: ^0.17.10+1
+
+dependency_overrides:
+  intl: "0.17.0"
 
 flutter_icons:
   android: true
@@ -40,7 +49,6 @@ flutter_icons:
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
